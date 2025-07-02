@@ -1,0 +1,619 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "User Service.",
+        "title": "User Service",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/v1/attendance": {
+            "post": {
+                "description": "Admin creates a new attendance period",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Create attendance period",
+                "parameters": [
+                    {
+                        "description": "Attendance payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AttendanceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.AttendanceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/attendance-period": {
+            "post": {
+                "description": "Admin creates a new attendance period",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AttendancePeriod"
+                ],
+                "summary": "Create attendance period",
+                "parameters": [
+                    {
+                        "description": "AttendancePeriod payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateAttendancePeriodRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.CreateAttendancePeriodResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/overtime/": {
+            "post": {
+                "description": "an overtime record for an employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Overtime"
+                ],
+                "summary": "overtime",
+                "parameters": [
+                    {
+                        "description": "Overtime payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OvertimeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.OvertimeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payroll/run": {
+            "post": {
+                "description": "Admin runs payroll for a given attendance period",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payroll"
+                ],
+                "summary": "Run payroll",
+                "parameters": [
+                    {
+                        "description": "RunPayroll payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PayrollRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.PayrollResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payroll/summary": {
+            "post": {
+                "description": "Admin generates a summary for a payroll run",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payroll"
+                ],
+                "summary": "Generate payroll summary",
+                "parameters": [
+                    {
+                        "description": "GenerateSummary payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SummaryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.PayrollSummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payslip": {
+            "post": {
+                "description": "Employee generates a payslip for a payroll",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Generate payslip",
+                "parameters": [
+                    {
+                        "description": "GeneratePayslip payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PayslipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.PayslipResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/reimbursement/": {
+            "post": {
+                "description": "a reimbursement request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reimbursement"
+                ],
+                "summary": "reimbursement",
+                "parameters": [
+                    {
+                        "description": "Reimbursement payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReimbursementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ReimbursementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.AttendanceResponse": {
+            "type": "object",
+            "properties": {
+                "attendance_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.CreateAttendancePeriodResponse": {
+            "type": "object",
+            "properties": {
+                "attendance_period_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.OvertimeResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "number"
+                },
+                "overtime_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.PayrollResponse": {
+            "type": "object",
+            "properties": {
+                "attendance_period_id": {
+                    "type": "string"
+                },
+                "payroll_id": {
+                    "type": "string"
+                },
+                "run_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.PayrollSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "payroll_id": {
+                    "type": "integer"
+                },
+                "payslips": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.PayslipSummaryItem"
+                    }
+                },
+                "total_employees": {
+                    "type": "integer"
+                },
+                "total_payout": {
+                    "type": "number"
+                }
+            }
+        },
+        "entity.PayslipReimbursments": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.PayslipResponse": {
+            "type": "object",
+            "properties": {
+                "base_salary": {
+                    "type": "number"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "generated_at": {
+                    "type": "string"
+                },
+                "overtime_amount": {
+                    "type": "number"
+                },
+                "overtime_hours": {
+                    "type": "number"
+                },
+                "payroll_id": {
+                    "type": "string"
+                },
+                "payslip_id": {
+                    "type": "string"
+                },
+                "prorated_salary": {
+                    "type": "number"
+                },
+                "reimbursement_amount": {
+                    "type": "number"
+                },
+                "reimbursment_detail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.PayslipReimbursments"
+                    }
+                },
+                "total_take_home_pay": {
+                    "type": "number"
+                },
+                "total_work_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.PayslipSummaryItem": {
+            "type": "object",
+            "properties": {
+                "employee_id": {
+                    "type": "integer"
+                },
+                "employee_name": {
+                    "type": "string"
+                },
+                "total_take_home_pay": {
+                    "type": "number"
+                }
+            }
+        },
+        "entity.ReimbursementResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "reimbursement_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AttendanceRequest": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateAttendancePeriodRequest": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.OvertimeRequest": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "number"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.PayrollRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "period_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.PayslipRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "payroll_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ReimbursementRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SummaryRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "payroll_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

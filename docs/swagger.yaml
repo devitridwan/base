@@ -1,0 +1,402 @@
+definitions:
+  entity.AttendanceResponse:
+    properties:
+      attendance_id:
+        type: string
+      created_at:
+        type: string
+      date:
+        type: string
+      status:
+        type: string
+    type: object
+  entity.CreateAttendancePeriodResponse:
+    properties:
+      attendance_period_id:
+        type: string
+      created_at:
+        type: string
+      end_date:
+        type: string
+      start_date:
+        type: string
+    type: object
+  entity.OvertimeResponse:
+    properties:
+      created_at:
+        type: string
+      date:
+        type: string
+      hours:
+        type: number
+      overtime_id:
+        type: string
+    type: object
+  entity.PayrollResponse:
+    properties:
+      attendance_period_id:
+        type: string
+      payroll_id:
+        type: string
+      run_at:
+        type: string
+    type: object
+  entity.PayrollSummaryResponse:
+    properties:
+      payroll_id:
+        type: integer
+      payslips:
+        items:
+          $ref: '#/definitions/entity.PayslipSummaryItem'
+        type: array
+      total_employees:
+        type: integer
+      total_payout:
+        type: number
+    type: object
+  entity.PayslipReimbursments:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+    type: object
+  entity.PayslipResponse:
+    properties:
+      base_salary:
+        type: number
+      employee_id:
+        type: string
+      generated_at:
+        type: string
+      overtime_amount:
+        type: number
+      overtime_hours:
+        type: number
+      payroll_id:
+        type: string
+      payslip_id:
+        type: string
+      prorated_salary:
+        type: number
+      reimbursement_amount:
+        type: number
+      reimbursment_detail:
+        items:
+          $ref: '#/definitions/entity.PayslipReimbursments'
+        type: array
+      total_take_home_pay:
+        type: number
+      total_work_days:
+        type: integer
+    type: object
+  entity.PayslipSummaryItem:
+    properties:
+      employee_id:
+        type: integer
+      employee_name:
+        type: string
+      total_take_home_pay:
+        type: number
+    type: object
+  entity.ReimbursementResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      reimbursement_id:
+        type: string
+    type: object
+  request.AttendanceRequest:
+    properties:
+      date:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  request.CreateAttendancePeriodRequest:
+    properties:
+      end_date:
+        type: string
+      password:
+        type: string
+      start_date:
+        type: string
+      username:
+        type: string
+    type: object
+  request.OvertimeRequest:
+    properties:
+      date:
+        type: string
+      hours:
+        type: number
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  request.PayrollRequest:
+    properties:
+      password:
+        type: string
+      period_id:
+        type: string
+      username:
+        type: string
+    type: object
+  request.PayslipRequest:
+    properties:
+      password:
+        type: string
+      payroll_id:
+        type: string
+      username:
+        type: string
+    type: object
+  request.ReimbursementRequest:
+    properties:
+      amount:
+        type: number
+      date:
+        type: string
+      description:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  request.SummaryRequest:
+    properties:
+      password:
+        type: string
+      payroll_id:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: User Service.
+  title: User Service
+  version: "1.0"
+paths:
+  /v1/attendance:
+    post:
+      consumes:
+      - application/json
+      description: Admin creates a new attendance period
+      parameters:
+      - description: Attendance payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AttendanceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AttendanceResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create attendance period
+      tags:
+      - Attendance
+  /v1/attendance-period:
+    post:
+      consumes:
+      - application/json
+      description: Admin creates a new attendance period
+      parameters:
+      - description: AttendancePeriod payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateAttendancePeriodRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.CreateAttendancePeriodResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create attendance period
+      tags:
+      - AttendancePeriod
+  /v1/overtime/:
+    post:
+      consumes:
+      - application/json
+      description: an overtime record for an employee
+      parameters:
+      - description: Overtime payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.OvertimeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.OvertimeResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: overtime
+      tags:
+      - Overtime
+  /v1/payroll/run:
+    post:
+      consumes:
+      - application/json
+      description: Admin runs payroll for a given attendance period
+      parameters:
+      - description: RunPayroll payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PayrollRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.PayrollResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Run payroll
+      tags:
+      - Payroll
+  /v1/payroll/summary:
+    post:
+      consumes:
+      - application/json
+      description: Admin generates a summary for a payroll run
+      parameters:
+      - description: GenerateSummary payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SummaryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.PayrollSummaryResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Generate payroll summary
+      tags:
+      - Payroll
+  /v1/payslip:
+    post:
+      consumes:
+      - application/json
+      description: Employee generates a payslip for a payroll
+      parameters:
+      - description: GeneratePayslip payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PayslipRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.PayslipResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Generate payslip
+      tags:
+      - User
+  /v1/reimbursement/:
+    post:
+      consumes:
+      - application/json
+      description: a reimbursement request
+      parameters:
+      - description: Reimbursement payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReimbursementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ReimbursementResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: reimbursement
+      tags:
+      - Reimbursement
+swagger: "2.0"

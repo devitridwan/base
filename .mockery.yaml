@@ -1,0 +1,22 @@
+with-expecter: true
+recursive: true
+all: true
+packages:
+  base/internal/domain/repository:
+    config:
+      mockname: "{{.InterfaceName}}"
+      filename: "{{.InterfaceName}}.go"
+      outpkg: "mocks_domain"
+      dir: "./internal/domain/mocks_domain"
+  base/internal/usecases/interactor:
+    config:
+      mockname: "{{.InterfaceName}}"
+      filename: "{{.InterfaceName}}.go"
+      outpkg: "mocks_interactor"
+      dir: "./internal/usecases/interactor/mocks_interactor"
+  base/internal/interfaces/txmanager:
+    config:
+      mockname: "{{.InterfaceName}}"
+      filename: "{{.InterfaceName}}.go"
+      outpkg: "mocks_interfaces"
+      dir: "./internal/interfaces/mocks_interfaces"

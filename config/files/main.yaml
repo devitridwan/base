@@ -1,0 +1,38 @@
+Server:
+  Port: ":8005"
+  ConsumerPort: "localhost:8001"
+  GracefulTimeout: 30s
+  ReadTimeout: 1s
+  WriteTimeout: 1s
+
+InternalAPI:
+  BasePath: "/payslip/api"
+  APITimeout: 10
+  EnableSwagger: true
+
+Database:
+  SlaveDSN: "postgres://sicepattmsuser:us3R3ncrypT3dbo05@localhost:5432/sicepattms?sslmode=disable"
+  MasterDSN: "postgres://sicepattmsuser:us3R3ncrypT3dbo05@localhost:5432/sicepattms?sslmode=disable"
+  RetryInterval: 10
+  MaxIdleConn: 10
+  MaxConn: 10
+
+Kafka:
+  Producer:
+    Brokers:
+      - localhost:9092
+    MaxMessageSize: 1000000
+  Consumer:
+    Brokers:
+      - localhost:9092
+    ConsumerGroup: "base-svc-consumer"
+    MaxAttempt: 3
+    Retry:
+      HandlerTimeout: 10s
+      MaxRetry: 5
+      RetryInitialDelay: 10ms
+      MaxJitter: 500ms
+      DisableBackoff: false
+  Topics:
+    Topic1: "topic1"
+    Topic2: "topic2"
