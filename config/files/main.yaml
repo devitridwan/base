@@ -36,3 +36,6 @@ Kafka:
   Topics:
     Topic1: "topic1"
     Topic2: "topic2"
+    Backoff1ndAttempt: "base.backoff-1-attempt"
+    Backoff2ndAttempt: "base.backoff-2-attempt"
+    Backoff3ndAttempt: "base.backoff-3-attempt"

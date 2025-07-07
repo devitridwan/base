@@ -8,16 +8,7 @@ const (
 	Backoff3rdAttempt = "base.backoff-3-attempt"
 )
 
-var RetrySleepMap = map[int]time.Duration{
-	1: 1 * time.Second,
-	2: 2 * time.Second,
-	3: 3 * time.Second,
-	4: 5 * time.Second,
-	5: 10 * time.Second,
-	// fallback for any N > 5
-}
-
-const DefaultRetrySleep = 15 * time.Second
+const DefaultRetrySleep = 1 * time.Second
 
 const (
 	Consumer1stRetryAttemptDelay = 1

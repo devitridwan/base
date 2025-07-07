@@ -63,22 +63,32 @@ func run(cmd *cobra.Command, args []string) error {
 		MasterDataDB: dataStore,
 		Producer:     producer,
 	})
-	handlers := kafkaHandler.NewTopicHandlerMap(cfg.Kafka.Topics, appContainer.ConsumerInteractor)
 
-	dispatcher := kafkaHandler.NewKafkaHandler(kafkaHandler.Opts{
-		Handler:            handlers,
+	topicHandlers := kafkaHandler.NewKafkaHandler(kafkaHandler.KafkaHandlerOpts{
 		ConsumerInteractor: appContainer.ConsumerInteractor,
+		Producer:           producer,
+		Cfg:                cfg.Kafka.Consumer,
+		Topics:             cfg.Kafka.Topics,
 	})
 
-	consumer := kafkaInfra.NewConsumer(&kafkaInfra.Opts{
-		Cfg: cfg.Kafka,
-		Topics: []string{
-			cfg.Kafka.Topics.Topic1,
-			cfg.Kafka.Topics.Topic2,
+	topicHandler := map[string]func(ctx context.Context, msg kafka.Message) error{
+		cfg.Kafka.Topics.Topic1:            topicHandlers.Topic1,
+		cfg.Kafka.Topics.Topic2:            topicHandlers.Topic2,
+		cfg.Kafka.Topics.Backoff1ndAttempt: topicHandlers.Backoff,
+		cfg.Kafka.Topics.Backoff2ndAttempt: topicHandlers.Backoff,
+		cfg.Kafka.Topics.Backoff3ndAttempt: topicHandlers.Backoff,
+	}
+
+	dispatcher := kafkaHandler.NewTopicHandlerMap(topicHandler)
+
+	consumer := kafkaInfra.NewConsumer(
+		&kafkaInfra.Opts{
+			Cfg:      cfg.Kafka,
+			Topics:   dispatcher.Topics,
+			Handlers: dispatcher.Handler,
+			Producer: producer,
 		},
-		Handler:  dispatcher.Handle,
-		Producer: producer,
-	})
+	)
 
 	// Graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -95,17 +105,4 @@ func run(cmd *cobra.Command, args []string) error {
 	log.Println("Application exited cleanly")
 
 	return nil
-}
-
-func dispatchByTopic(
-	handlers map[string]func(context.Context, kafka.Message) error,
-) func(context.Context, kafka.Message) error {
-	return func(ctx context.Context, msg kafka.Message) error {
-		handler, ok := handlers[msg.Topic]
-		if !ok {
-			log.Printf("⚠️ No handler registered for topic: %s", msg.Topic)
-			return nil
-		}
-		return handler(ctx, msg)
-	}
 }

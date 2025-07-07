@@ -1,12 +1,12 @@
-package consumer
+package kafka
 
 import (
 	"base/config"
 	"base/internal/domain/constants"
-	"base/internal/infrastructures/log"
 	"base/internal/interfaces/producer"
 	"context"
-	"errors"
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -14,27 +14,26 @@ import (
 )
 
 func HandleBackoffRetry(ctx context.Context, msg kafka.Message, producer producer.KafkaProducer, cfg config.KafkaConsumerConfig) error {
+	fmt.Println("masuk >> ", msg, " topic >> ", msg.Topic)
 	attempt := extractRetryAttempt(msg) + 1
-	if attempt > cfg.Retry.MaxRetry {
+	if attempt > cfg.MaxAttempt {
 		// return sendToDLQ(ctx, msg, attempt, producer, cfg.Topics.FinalDLQ)
+		log.Printf("all backoff retry error")
+		return nil
 	}
 
 	// Delay logic based on current topic
 	delayMinutes := constants.GetBackoffAttemptDelayMinute()[msg.Topic]
 	if delayMinutes > 0 {
-		delay := time.Duration(delayMinutes) * time.Minute
-		log.Printf("Delaying for %v before retry", delay)
-		select {
-		case <-time.After(delay):
-		case <-ctx.Done():
-			return ctx.Err()
-		}
+		log.Printf("Delaying for %v before retry", time.Duration(delayMinutes)*time.Second)
+		time.Sleep(time.Duration(delayMinutes) * time.Second)
 	}
 
 	// Publish to next retry topic
-	nextTopic := getNextBackoffTopic(msg.Topic, cfg)
+	nextTopic := getNextBackoffTopic(msg.Topic)
 	if nextTopic == "" {
-		return errors.New("no next topic")
+		log.Printf("no next topic")
+		return nil
 	}
 
 	msg.Headers = upsertHeader(msg.Headers, "x-retry-attempt", strconv.Itoa(attempt))
@@ -64,7 +63,8 @@ func upsertHeader(headers []kafka.Header, key, value string) []kafka.Header {
 }
 
 // getNextBackoffTopic determines the next topic based on the current one.
-func getNextBackoffTopic(current string, cfg config.KafkaConsumerConfig) string {
+func getNextBackoffTopic(current string) string {
+	fmt.Println("current >> ", current)
 	switch current {
 	case constants.Backoff1stAttempt:
 		return constants.Backoff2ndAttempt

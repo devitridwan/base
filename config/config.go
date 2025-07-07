@@ -45,6 +45,8 @@ type (
 		Topic1            string `yaml:"Topic1"`
 		Topic2            string `yaml:"Topic2"`
 		Backoff1ndAttempt string `yaml:"Backoff1ndAttempt"`
+		Backoff2ndAttempt string `yaml:"Backoff2ndAttempt"`
+		Backoff3ndAttempt string `yaml:"Backoff3ndAttempt"`
 	}
 
 	RetryConfig struct {
