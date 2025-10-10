@@ -8,7 +8,6 @@ import (
 	"base/internal/usecases/interactor"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/segmentio/kafka-go"
@@ -39,7 +38,6 @@ func NewKafkaHandler(o KafkaHandlerOpts) *KafkaHandler {
 
 func (h *KafkaHandler) Topic1(ctx context.Context, msg kafka.Message) (err error) {
 	var req request.GetByIdReq
-	fmt.Println(string(msg.Value))
 	if err = json.Unmarshal(msg.Value, &req); err != nil {
 		log.Printf("[ERROR] Invalid message JSON: %v", err)
 		return err
@@ -66,7 +64,6 @@ func (h *KafkaHandler) Backoff(ctx context.Context, msg kafka.Message) (err erro
 	}
 	origin := msg
 	msg.Value = req.Data
-	fmt.Println("value >> ", string(msg.Value))
 	switch req.SourceTopic {
 	case h.topics.Topic1:
 		err = h.Topic1(ctx, msg)

@@ -7,7 +7,6 @@ import (
 	"base/internal/interfaces/producer"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
@@ -48,8 +47,8 @@ func NewConsumer(o *Opts) *Consumer {
 func (c *Consumer) Start(ctx context.Context) {
 	log.Printf("Kafka consumer started with topics: %v", c.reader.Config().GroupTopics)
 
-	const workerCount = 10                 // 🔧 or make this configurable
-	jobs := make(chan kafka.Message, 1000) // buffered to allow burst input
+	const workerCount = 10
+	jobs := make(chan kafka.Message, 1000)
 
 	// Start fixed number of workers
 	for i := 0; i < workerCount; i++ {
@@ -90,7 +89,7 @@ func (c *Consumer) worker(ctx context.Context, jobs <-chan kafka.Message) {
 	}
 }
 
-func (c *Consumer) processWithRetry(parentCtx context.Context, msg kafka.Message) {
+func (c *Consumer) processWithRetry(ctx context.Context, msg kafka.Message) {
 	var errHandler error
 
 	handler, ok := c.handlers[msg.Topic]
@@ -102,9 +101,9 @@ func (c *Consumer) processWithRetry(parentCtx context.Context, msg kafka.Message
 	success := false
 
 	for attempt := 0; attempt <= c.cfg.Consumer.Retry.MaxRetry; attempt++ {
-		handlerCtx, cancel := context.WithTimeout(parentCtx, c.cfg.Consumer.Retry.HandlerTimeout)
+		ctx, cancel := context.WithTimeout(ctx, c.cfg.Consumer.Retry.HandlerTimeout)
 
-		errHandler = handler(handlerCtx, msg)
+		errHandler := handler(ctx, msg)
 		cancel()
 
 		if errHandler == nil {
@@ -120,7 +119,7 @@ func (c *Consumer) processWithRetry(parentCtx context.Context, msg kafka.Message
 
 			select {
 			case <-time.After(backoff):
-			case <-parentCtx.Done():
+			case <-ctx.Done():
 				log.Println("Retry aborted due to shutdown")
 				return
 			}
@@ -128,11 +127,10 @@ func (c *Consumer) processWithRetry(parentCtx context.Context, msg kafka.Message
 	}
 	key := 1
 	temp, ok := GetHeader(msg.Headers, "x-retry-attempt")
-	fmt.Println("temp >> ", temp)
 	if ok {
 		key = temp
 	}
-	fmt.Println("msg.Value >> ", string(msg.Value))
+
 	messValue := models.BackoffRetry{
 		SourceTopic: msg.Topic,
 		Data:        msg.Value,
@@ -145,8 +143,7 @@ func (c *Consumer) processWithRetry(parentCtx context.Context, msg kafka.Message
 
 	if !success {
 		log.Printf("Failed after max retries: %s", string(msg.Value))
-		c.sendToBackoffTopic(parentCtx, msg, key)
-		// Optionally: forward to DLQ here
+		c.sendToBackoffTopic(ctx, msg, key)
 	}
 }
 
@@ -158,7 +155,6 @@ func (c *Consumer) retryDelay(attempt int) time.Duration {
 	}
 
 	return constants.DefaultRetrySleep
-
 }
 
 func (c *Consumer) sendToBackoffTopic(ctx context.Context, msg kafka.Message, attempt int) {

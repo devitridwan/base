@@ -5,7 +5,6 @@ import (
 	"base/internal/domain/constants"
 	"base/internal/interfaces/producer"
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -14,11 +13,10 @@ import (
 )
 
 func HandleBackoffRetry(ctx context.Context, msg kafka.Message, producer producer.KafkaProducer, cfg config.KafkaConsumerConfig) error {
-	fmt.Println("masuk >> ", msg, " topic >> ", msg.Topic)
 	attempt := extractRetryAttempt(msg) + 1
 	if attempt > cfg.MaxAttempt {
 		// return sendToDLQ(ctx, msg, attempt, producer, cfg.Topics.FinalDLQ)
-		log.Printf("all backoff retry error")
+		log.Println("all backoff retry error")
 		return nil
 	}
 
@@ -32,7 +30,7 @@ func HandleBackoffRetry(ctx context.Context, msg kafka.Message, producer produce
 	// Publish to next retry topic
 	nextTopic := getNextBackoffTopic(msg.Topic)
 	if nextTopic == "" {
-		log.Printf("no next topic")
+		log.Println("not next topic")
 		return nil
 	}
 
@@ -40,11 +38,11 @@ func HandleBackoffRetry(ctx context.Context, msg kafka.Message, producer produce
 	return producer.Send(ctx, nextTopic, msg.Key, msg.Value)
 }
 
-// extractRetryAttempt returns the attempt count from the message header.
+// return the attempt count from the message header.
 func extractRetryAttempt(msg kafka.Message) int {
 	for _, h := range msg.Headers {
 		if h.Key == "x-retry-attempt" {
-			if val, err := strconv.Atoi(string(h.Value)); err == nil {
+			if val, err := strconv.Atoi(string(h.Value)); err != nil {
 				return val
 			}
 		}
@@ -62,9 +60,8 @@ func upsertHeader(headers []kafka.Header, key, value string) []kafka.Header {
 	return append(headers, kafka.Header{Key: key, Value: []byte(value)})
 }
 
-// getNextBackoffTopic determines the next topic based on the current one.
+// determines the next topic based on the current one.
 func getNextBackoffTopic(current string) string {
-	fmt.Println("current >> ", current)
 	switch current {
 	case constants.Backoff1stAttempt:
 		return constants.Backoff2ndAttempt
@@ -72,13 +69,13 @@ func getNextBackoffTopic(current string) string {
 		return constants.Backoff3rdAttempt
 	case constants.Backoff3rdAttempt:
 		return ""
-		// return constants.FinalDLQ // or "" if you want to stop here
+		// return constants.FinalDLQ
 	default:
 		return ""
 	}
 }
 
-// sendToDLQ sends the message to the final DLQ with an additional header.
+// sends the message to the finalDLQ with an additional header.
 func sendToDLQ(ctx context.Context, msg kafka.Message, attempt int, producer producer.KafkaProducer, topic string) error {
 	msg.Headers = append(msg.Headers, kafka.Header{
 		Key:   "x-final-dlq-attempt",

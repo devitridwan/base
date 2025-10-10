@@ -8,36 +8,32 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Driver list
 const (
 	DriverMySQL     = "mysql"
 	DriverPostgres  = "postgres"
 	DriverSnowflake = "snowflake"
 )
 
-// Db object
+// DB object
 var (
 	Master *DB
 	Slave  *DB
 )
 
 type (
-	//DSNConfig for database source name
 	DSNConfig struct {
 		DSN string
 	}
 
-	//DBConfig for databases configuration
 	DBConfig struct {
 		SlaveDSN        string `json:"slave_dsn" mapstructure:"slave_dsn"`
 		MasterDSN       string `json:"master_dsn" mapstructure:"master_dsn"`
 		RetryInterval   int    `json:"retry_interval" mapstructure:"retry_interval"`
 		MaxIdleConn     int    `json:"max_idle" mapstructure:"max_idle"`
-		MaxConn         int    `json:"max_con" mapstructure:"max_con"`
+		MaxConn         int    `json:"max_conn" mapstructure:"max_conn"`
 		ConnMaxLifetime string `json:"conn_max_lifetime" mapstructure:"conn_max_lifetime"`
 	}
 
-	//DB configuration
 	DB struct {
 		DBConnection    *sqlx.DB
 		DBString        string
@@ -52,7 +48,6 @@ type (
 		Master *sqlx.DB
 		Slave  *sqlx.DB
 	}
-
 	Options struct {
 		dbTx *sqlx.Tx
 	}
@@ -69,7 +64,7 @@ func (s *Store) GetSlave() *sqlx.DB {
 func New(cfg DBConfig, dbDriver string) *Store {
 	masterDSN := cfg.MasterDSN
 
-	var conMaxLifetime time.Duration
+	var connMaxLifetime time.Duration
 	if cfg.ConnMaxLifetime != "" {
 		duration, err := time.ParseDuration(cfg.ConnMaxLifetime)
 		if err != nil {
@@ -77,7 +72,7 @@ func New(cfg DBConfig, dbDriver string) *Store {
 			return &Store{}
 		}
 
-		conMaxLifetime = duration
+		connMaxLifetime = duration
 	}
 
 	Master = &DB{
@@ -85,7 +80,7 @@ func New(cfg DBConfig, dbDriver string) *Store {
 		RetryInterval:   cfg.RetryInterval,
 		MaxIdleConn:     cfg.MaxIdleConn,
 		MaxConn:         cfg.MaxConn,
-		ConnMaxLifetime: conMaxLifetime,
+		ConnMaxLifetime: connMaxLifetime,
 		doneChannel:     make(chan bool),
 	}
 
@@ -102,7 +97,7 @@ func New(cfg DBConfig, dbDriver string) *Store {
 			RetryInterval:   cfg.RetryInterval,
 			MaxIdleConn:     cfg.MaxIdleConn,
 			MaxConn:         cfg.MaxConn,
-			ConnMaxLifetime: conMaxLifetime,
+			ConnMaxLifetime: connMaxLifetime,
 			doneChannel:     make(chan bool),
 		}
 		err = Slave.ConnectAndMonitor(dbDriver)
@@ -119,7 +114,6 @@ func New(cfg DBConfig, dbDriver string) *Store {
 
 // Connect to database
 func (d *DB) Connect(driver string) error {
-
 	db, err := sqlx.Open(driver, d.DBString)
 	if err != nil {
 		return fmt.Errorf("failed to open DB connection: %w", err)
@@ -141,10 +135,9 @@ func (d *DB) Connect(driver string) error {
 	return nil
 }
 
-// ConnectAndMonitor to database
+// Connect and monitor database
 func (d *DB) ConnectAndMonitor(driver string) error {
 	err := d.Connect(driver)
-
 	if err != nil {
 		log.Printf("Not connected to database %s, trying", d.DBString)
 		return err
@@ -160,7 +153,7 @@ func (d *DB) ConnectAndMonitor(driver string) error {
 				} else {
 					err := d.DBConnection.Ping()
 					if err != nil {
-						log.Println("[Error]: DB reconnect error", err.Error())
+						log.Printf("[Error]: DB reconnect error: %v", err.Error())
 						return err
 					}
 				}
